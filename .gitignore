@@ -1,3 +1,7 @@
+# Ignoring dataset, ipynb
+argoverse-tracking/
+.ipynb_checkpoints/
+
 # Ignoring data files #
 #######################
 *.pkl
