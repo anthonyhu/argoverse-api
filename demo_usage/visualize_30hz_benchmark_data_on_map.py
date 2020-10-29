@@ -50,7 +50,7 @@ class DatasetOnMapVisualizer:
         """We will cache the accumulated trajectories per city, per log, and per frame
         for the tracking benchmark.
         """
-        self.plot_lane_tangent_arrows = True
+        self.plot_lane_tangent_arrows = False
         self.plot_lidar_bev = True
         self.plot_lidar_in_img = False
         self.experiment_prefix = experiment_prefix
@@ -262,7 +262,7 @@ class DatasetOnMapVisualizer:
         draw_lane_polygons(ax, local_lane_polygons)
         draw_lane_polygons(ax, local_das, color="tab:pink")
 
-        if axis is not "city_axis":
+        if axis is not "city_axis" and lidar_pts is not None:
             lidar_pts = rotate_polygon_about_pt(lidar_pts, city_to_egovehicle_se3.rotation, np.zeros((3,)))
             draw_point_cloud_bev(ax, lidar_pts)
 
@@ -285,6 +285,7 @@ class DatasetOnMapVisualizer:
                     )
                     if axis is "city_axis":
                         plot_bbox_2D(ax, bbox_city_fr, color)
+                        print('bbox city frame', bbox_city_fr)
                         if self.plot_lane_tangent_arrows:
                             bbox_center = np.mean(bbox_city_fr, axis=0)
                             tangent_xy, conf = avm.get_lane_direction(
@@ -303,10 +304,13 @@ class DatasetOnMapVisualizer:
                                 zorder=2,
                             )
                     else:
+                        cuboid_lidar_pts = None
                         plot_bbox_2D(ax, bbox_ego_frame, color)
-                        cuboid_lidar_pts, _ = filter_point_cloud_to_bbox_2D_vectorized(
-                            bbox_ego_frame[:, :2], copy.deepcopy(lidar_pts)
-                        )
+                        print('bbox ego frame', bbox_ego_frame)
+                        if lidar_pts is not None:
+                            cuboid_lidar_pts, _ = filter_point_cloud_to_bbox_2D_vectorized(
+                                bbox_ego_frame[:, :2], copy.deepcopy(lidar_pts)
+                            )
                         if cuboid_lidar_pts is not None:
                             draw_point_cloud_bev(ax, cuboid_lidar_pts, color)
 
